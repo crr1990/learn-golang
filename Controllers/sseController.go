@@ -13,6 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var bocker = NewSSEHandler()
+
 type SSEHandler struct {
 	clients map[chan string]bool
 
@@ -36,7 +38,7 @@ func NewSSEHandler() *SSEHandler {
 
 // Start handling new and disconnected clients, as well as sending messages to
 // all connected clients.
-func (b *SSEHandler) HandleEvents(id int) {
+func (b *SSEHandler) HandleEvents(id string) {
 	go func() {
 		for {
 			select {
@@ -111,16 +113,18 @@ log.Println(b.clients)
 }
 
 func Subscribe(c *gin.Context)  {
-	b := NewSSEHandler()
-	b.HandleEvents(c.GetInt("id"))
-	b.Subscribe(c)
+	log.Println(c.Query("id"))
+	bocker.HandleEvents(c.Query("id"))
+	go func() {
+		bocker.Subscribe(c)
+	}()
+
 
 }
 
 func SendMsg(c *gin.Context)  {
-	b := NewSSEHandler()
-	//b.HandleEvents()
+	bocker.HandleEvents(c.Query("id"))
 	go func() {
-		b.SendString("hello world.")
+		bocker.SendString("hello world."+c.Query("id"))
 	}()
 }

@@ -1,11 +1,12 @@
 package main
 
 import (
-"learn-golang/Router"
-"learn-golang/Databases"
+	Mysql "learn-golang/Databases"
+	"learn-golang/Router"
 )
 
 func main() {
 	defer Mysql.DB.Close()
 	Router.InitRouter()
+
 }

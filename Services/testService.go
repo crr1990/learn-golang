@@ -10,6 +10,8 @@ type Test struct {
 }
 
 func (this *Test) Insert() (id int, err error) {
+	//var b = Controllers.NewSSEHandler()
+	//b.SendString("hello")
 	var testModel Models.Test
 	testModel.Id = this.Id
 	testModel.Testcol = this.Testcol

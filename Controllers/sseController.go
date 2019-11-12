@@ -76,7 +76,7 @@ func (b *SSEHandler) Subscribe(c *gin.Context) {
 	b.newClients <- messageChan
 
 	defer func() {
-		b.closingClients <- messageChan
+		b.defunctClients <- messageChan
 	}()
 
 	notify := c.Done()
@@ -95,7 +95,7 @@ func (b *SSEHandler) Subscribe(c *gin.Context) {
 		if !open {
 			break
 		}
-		fmt.Fprintf(w, "data: Message: %s\n\n", msg)
+		fmt.Fprintf(w, "data: %s\n\n", msg)
 		f.Flush()
 	}
 

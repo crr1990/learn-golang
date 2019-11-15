@@ -2,9 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv='Content-Security-Policy' content='block-all-mixed-content'>
     <title>Title</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 </head>
-<body>
-111
+<script>
+    var id = Math.floor(Math.random()*10);
+    //var es = new EventSource("http://127.0.0.1:3000");
+    var es = new EventSource("http://127.0.0.1:8628/sub?id="+id);
+    es.addEventListener("message",function (e) {
+        $("#window").append(e.data)
+        console.log(e.data)
+    },false)
+</script>
+<body style="background: black">
+<img src="https://du.hupucdn.com/icon_byte1808byte_5dcd4ffd90d3a_w88h88.png">
+<div style="width: 400px;position: absolute;left: 40%;top: 5%;">
+    <div id="window" style="align-content: center;float: left;width: 400px; height: 400px;background: white;border-bottom-color: cadetblue;border-bottom-style: solid;border-bottom-width: 2px"></div>
+    <div style="align-content: center;float: left;width: 400px; height: 100px;background: white;">
+        <input type="text" style="width: 380px; height: 80px;margin: 5px;">
+    </div>
+    <div style="align-content: center;float: left;width: 400px; height: 50px;background: white;">
+        <button style="float: right;margin: 10px">Enter</button>
+    </div>
+</div>
 </body>
 </html>

@@ -76,6 +76,7 @@ func (b *SSEHandler) Subscribe(c *gin.Context) {
 	b.newClients <- messageChan
 
 	defer func() {
+		log.Printf("Removed client. %d registered clients", len(b.clients))
 		b.defunctClients <- messageChan
 	}()
 
@@ -83,6 +84,7 @@ func (b *SSEHandler) Subscribe(c *gin.Context) {
 	go func() {
 		<-notify
 		b.defunctClients <- messageChan
+		log.Printf("Removed client. %d registered lients", len(b.clients))
 	}()
 
 	w.Header().Set("Content-Type", "text/event-stream")

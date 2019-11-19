@@ -7,8 +7,12 @@ import (
 	"net/http"
 	"github.com/gin-gonic/gin"
 )
+var bocker *SSEHandler
+func init()  {
+	log.SetFlags(log.Lshortfile | log.Ltime)
+	bocker = NewSSEHandler()
+}
 
-var bocker = NewSSEHandler()
 
 type SSEHandler struct {
 	clients map[chan string]bool
@@ -27,10 +31,11 @@ func NewSSEHandler() *SSEHandler {
 		defunctClients: make(chan (chan string)),
 		messages:       make(chan string, 10),
 	}
+
 	return b
 }
 
-func (b *SSEHandler) HandleEvents(id string) {
+func (b *SSEHandler) HandleEvents() {
 	go func() {
 		for {
 			select {
@@ -38,9 +43,7 @@ func (b *SSEHandler) HandleEvents(id string) {
 				b.clients[id] = true
 				log.Printf("Client added. %d registered clients", len(b.clients))
 			case id := <-b.defunctClients:
-
 				delete(b.clients, id)
-				close(id)
 				log.Printf("Removed client. %d registered clients", len(b.clients))
 			case msg := <-b.messages:
 				for id, _ := range b.clients {
@@ -74,17 +77,18 @@ func (b *SSEHandler) Subscribe(c *gin.Context) {
 
 	messageChan := make(chan string)
 	b.newClients <- messageChan
+	go func() {
+		b.messages <- "欢迎"+c.Query("name")+"进入了聊天室。"
+	}()
 
 	defer func() {
-		log.Printf("Removed client. %d registered clients", len(b.clients))
 		b.defunctClients <- messageChan
 	}()
 
-	notify := c.Done()
+	notify := w.CloseNotify()
 	go func() {
 		<-notify
 		b.defunctClients <- messageChan
-		log.Printf("Removed client. %d registered lients", len(b.clients))
 	}()
 
 	w.Header().Set("Content-Type", "text/event-stream")
@@ -105,12 +109,12 @@ func (b *SSEHandler) Subscribe(c *gin.Context) {
 }
 
 func Subscribe(c *gin.Context)  {
-	log.Println(c.Query("id"))
-	bocker.HandleEvents(c.Query("id"))
+	bocker.HandleEvents()
 	bocker.Subscribe(c)
+	bocker.SendString("欢迎"+c.Query("name")+"进入了聊天室。")
 }
 
 func SendMsg(c *gin.Context)  {
-	bocker.HandleEvents(c.Query("id"))
+	bocker.HandleEvents()
 	bocker.SendString("hello world."+c.Query("id"))
 }

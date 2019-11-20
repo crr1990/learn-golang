@@ -111,10 +111,11 @@ func (b *SSEHandler) Subscribe(c *gin.Context) {
 func Subscribe(c *gin.Context)  {
 	bocker.HandleEvents()
 	bocker.Subscribe(c)
+
 	bocker.SendString("欢迎"+c.Query("name")+"进入了聊天室。")
 }
 
 func SendMsg(c *gin.Context)  {
 	bocker.HandleEvents()
-	bocker.SendString("hello world."+c.Query("id"))
+	bocker.SendString(c.Query("name")+":"+c.Query("message"))
 }
